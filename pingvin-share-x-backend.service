@@ -19,17 +19,17 @@ Environment=NODE_ENV=production
 Environment=BACKEND_PORT=8080
 Environment=DATA_DIRECTORY=/var/lib/pingvin-share-x/data
 Environment=DATABASE_URL=file:/var/lib/pingvin-share-x/data/pingvin-share.db?connection_limit=1
-# Put the bundled node_modules/.bin on PATH so `env` below can find `prisma`,
-# and so `prisma db seed` can spawn `ts-node` (else: `spawn ts-node ENOENT`).
+# Put the bundled node_modules/.bin on PATH so `env` below can find `prisma`.
 # systemd resolves a bare ExecStart command only against a fixed system path,
 # not this PATH — hence the `/usr/bin/env` wrapper, which does honor it.
 Environment=PATH=/usr/lib/pingvin-share-x/backend/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin
 # ---------------------------------------------------------------------------
 
 # Apply migrations and (idempotently) seed config before starting the server,
-# mirroring upstream's `npm run prod`.
+# mirroring upstream's `npm run prod`. The seed is shipped precompiled (see the
+# PKGBUILD) so it runs under node directly — no ts-node / dev deps at runtime.
 ExecStartPre=/usr/bin/env prisma migrate deploy
-ExecStartPre=/usr/bin/env prisma db seed
+ExecStartPre=/usr/bin/node prisma/seed/config.seed.js
 ExecStart=/usr/bin/node dist/src/main
 
 Restart=on-failure
