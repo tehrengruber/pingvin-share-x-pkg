@@ -1,0 +1,50 @@
+[Unit]
+Description=Pingvin Share X backend (NestJS API)
+Documentation=https://smp46.github.io/pingvin-share-x
+After=network-online.target
+Wants=network-online.target
+Before=pingvin-share-x-frontend.service
+
+[Service]
+Type=simple
+User=pingvin
+Group=pingvin
+WorkingDirectory=/usr/lib/pingvin-share-x/backend
+
+# --- Default configuration -------------------------------------------------
+# Do NOT edit this unit. Override with:
+#   systemctl edit pingvin-share-x-backend.service
+# (see /usr/share/doc/pingvin-share-x/backend-override.conf.example)
+Environment=NODE_ENV=production
+Environment=BACKEND_PORT=8080
+Environment=DATA_DIRECTORY=/var/lib/pingvin-share-x/data
+Environment=DATABASE_URL=file:/var/lib/pingvin-share-x/data/pingvin-share.db?connection_limit=1
+# Put the bundled node_modules/.bin on PATH so `env` below can find `prisma`,
+# and so `prisma db seed` can spawn `ts-node` (else: `spawn ts-node ENOENT`).
+# systemd resolves a bare ExecStart command only against a fixed system path,
+# not this PATH — hence the `/usr/bin/env` wrapper, which does honor it.
+Environment=PATH=/usr/lib/pingvin-share-x/backend/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin
+# ---------------------------------------------------------------------------
+
+# Apply migrations and (idempotently) seed config before starting the server,
+# mirroring upstream's `npm run prod`.
+ExecStartPre=/usr/bin/env prisma migrate deploy
+ExecStartPre=/usr/bin/env prisma db seed
+ExecStart=/usr/bin/node dist/src/main
+
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+ReadWritePaths=/var/lib/pingvin-share-x
+
+[Install]
+WantedBy=multi-user.target

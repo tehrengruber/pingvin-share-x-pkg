@@ -1,0 +1,45 @@
+[Unit]
+Description=Pingvin Share X frontend (Next.js)
+Documentation=https://smp46.github.io/pingvin-share-x
+After=network-online.target pingvin-share-x-backend.service
+Wants=network-online.target pingvin-share-x-backend.service
+
+[Service]
+Type=simple
+User=pingvin
+Group=pingvin
+WorkingDirectory=/usr/lib/pingvin-share-x/frontend
+
+# --- Default configuration -------------------------------------------------
+# Do NOT edit this unit. Override with:
+#   systemctl edit pingvin-share-x-frontend.service
+# (see /usr/share/doc/pingvin-share-x/frontend-override.conf.example)
+Environment=NODE_ENV=production
+Environment=PORT=3000
+# Bind address — 0.0.0.0 (server.js default) so a remote reverse proxy can
+# reach it; lock the port down to the proxy host with a firewall.
+Environment=HOSTNAME=0.0.0.0
+Environment=API_URL=http://localhost:8080
+# ---------------------------------------------------------------------------
+
+# Next.js standalone server (output: "standalone"), matching upstream's
+# `node frontend/server.js`. Self-contained — uses the trimmed node_modules
+# bundled inside the standalone tree, not a global `next` binary.
+ExecStart=/usr/bin/node server.js
+
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+ReadWritePaths=/var/lib/pingvin-share-x /var/cache/pingvin-share-x
+
+[Install]
+WantedBy=multi-user.target

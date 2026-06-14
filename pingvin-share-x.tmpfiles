@@ -1,0 +1,5 @@
+d /var/lib/pingvin-share-x            0750 pingvin pingvin -
+d /var/lib/pingvin-share-x/data       0750 pingvin pingvin -
+# Seed the writable image dir from the packaged defaults on first install.
+C /var/lib/pingvin-share-x/data/images 0750 pingvin pingvin - /usr/lib/pingvin-share-x/frontend/public/img.default
+d /var/cache/pingvin-share-x          0750 pingvin pingvin -

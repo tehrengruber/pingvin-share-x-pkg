@@ -1,0 +1,16 @@
+# makepkg build artifacts
+/pkg/
+/src/
+/srcdir/
+/pkgdir/
+
+# downloaded sources and built packages
+*.tar.gz
+*.pkg.tar.*
+*.src.tar.*
+
+# misc build/output
+*.log
+
+# JetBrains IDE project files
+/.idea/
