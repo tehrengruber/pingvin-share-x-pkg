@@ -46,6 +46,7 @@ build() {
   # Backend (NestJS).
   cd backend
   npm ci
+  npx prisma generate
   npm run build
   # Precompile the prisma seed to plain JS so it runs under `node` at runtime
   # instead of ts-node. The seed is one self-contained file (imports only
