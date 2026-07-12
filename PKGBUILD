@@ -1,13 +1,13 @@
 # Maintainer: Till Ehrengruber <till@ehrengruber.ch>
 pkgname=pingvin-share-x
-pkgver=1.19.0
-pkgrel=3
+pkgver=1.21.0
+pkgrel=1
 pkgdesc="Self-hosted file sharing platform — Pingvin Share X fork (NestJS backend + Next.js frontend)"
 arch=('x86_64')  # bundles native modules (argon2, sharp) and prisma query engine
 url="https://github.com/smp46/pingvin-share-x"
 license=('BSD-2-Clause')
 # Pinned to Node 24 LTS, matching upstream's production runtime (Dockerfile
-# `node:24-alpine`). 1.19.0 requires node >=22 (nestjs-i18n); CI runs the system
+# `node:24-alpine`). 1.21.0 requires node >=22 (nestjs-i18n); CI runs the system
 # tests on node:22, so node 24 is a superset. Not the current `nodejs` (26) —
 # untested upstream.
 depends=('nodejs-lts-krypton')
@@ -17,25 +17,13 @@ source=("$pkgname-$pkgver.tar.gz::https://github.com/smp46/pingvin-share-x/archi
         "$pkgname-backend.service"
         "$pkgname-frontend.service"
         "$pkgname.sysusers"
-        "$pkgname.tmpfiles"
-        "0001-email-localize-fromnow.patch")
+        "$pkgname.tmpfiles")
 # Run `updpkgsums` after editing the local files to replace the SKIPs.
-sha256sums=('13f4f46303bf7cf83e8156efa42eb99ec28addad8ce8aeb286c76f3e24af1719'
+sha256sums=('6b6e72796b3ec40f7b7be4a8d83af7b121f50ef4bdf596d5210d277e5470c386'
             '1d4c227daf30ebb7897bfe692baed83db22c0a66b7fe947e10847db9d0fd916f'
             '4bf0124bbe9cb19c10fa1774430b6d8ada40bbca644039422eb2d708caac4961'
             '3b7fed3c716a02a81743d68484d70087fe19647717ea1285889901c995e7a1df'
-            '0262c657493fb61cac9685583d85a0bd65787b3fecf1a8e8b258a6e8a91b6694'
-            'a05abc48fcfc055cba3b5627709ff13c243e2580f5a61705b5136e68a37d00c5')
-
-prepare() {
-  cd "$srcdir/$pkgname-$pkgver"
-
-  # Localize email expiry time (moment().fromNow()) and i18n fallbacks: upstream
-  # hardcodes `const lang = ""` in email.service.ts, overriding the configured
-  # general.defaultLanguage so emails always render in English. Fixed upstream's
-  # own stated intent in PR #70. Drop when merged upstream.
-  patch -Np1 -i "$srcdir/0001-email-localize-fromnow.patch"
-}
+            '0262c657493fb61cac9685583d85a0bd65787b3fecf1a8e8b258a6e8a91b6694')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
